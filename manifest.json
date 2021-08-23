@@ -1,0 +1,25 @@
+{
+  "manifest_version": 1.0,
+  "id": "latest_data",
+  "name": "Grouping in Latest Data",
+  "version": "1.0.0",
+  "namespace": "BGmotLD",
+  "author": "Evgeny Yurchenko",
+  "url": "https://bgmot.com",
+  "description": "Group elements by Tags in Latest Data.",
+  "actions": {
+    "latest.view": {
+      "class": "CControllerBGLatestView",
+      "view": "module.monitoring.bglatest.view"
+    },
+    "latest.view.refresh": {
+      "class": "CControllerBGLatestViewRefresh",
+      "view": "module.monitoring.bglatest.view.refresh",
+      "layout": "layout.json"
+    },
+    "bgprofile.update": {
+      "class": "CControllerBGProfileUpdate",
+      "layout": "layout.json"
+    }
+  }
+}
