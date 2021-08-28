@@ -310,5 +310,47 @@ class CBGProfile extends CProfile {
 
 		return $field;
 	}
+
+	/**
+	 * Return matched idx value for current user.
+	 *
+	 * @param string    $idx           Search pattern.
+	 * @param mixed     $default_value Default value if no rows was found.
+	 * @param int|null  $idx2          Numerical index will be matched against idx2 index.
+	 *
+	 * @return mixed
+	 */
+	public static function get($idx, $default_value = null, $idx2 = 0) {
+		// no user data available, just return the default value
+		if (!CWebUser::$data || $idx2 === null) {
+			return $default_value;
+		}
+
+		if (self::$profiles === null) {
+			self::init();
+		}
+
+		if (array_key_exists($idx, self::$profiles)) {
+			// When there is cached data for $idx but $idx2 was not found we should return default value.
+			return array_key_exists($idx2, self::$profiles[$idx]) ? self::$profiles[$idx][$idx2] : $default_value;
+		}
+
+		self::$profiles[$idx] = [];
+		// Aggressive caching, cache all items matched $idx key.
+		$query = DBselect(
+			'SELECT type,value_id,value_int,value_str,idx2'.
+			' FROM profiles'.
+			' WHERE userid='.self::$userDetails['userid'].
+				' AND idx='.zbx_dbstr($idx)
+		);
+
+		while ($row = DBfetch($query)) {
+			$value_type = self::getFieldByType($row['type']);
+
+			self::$profiles[$idx][$row['idx2']] = $row[$value_type];
+		}
+
+		return array_key_exists($idx2, self::$profiles[$idx]) ? self::$profiles[$idx][$idx2] : $default_value;
+	}
 }
 ?>
