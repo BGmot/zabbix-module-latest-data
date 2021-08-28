@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2021-08-27
+### Changed
+- fix Item Name filer issue
+
 ## [1.0.0] - 2021-08-22
 ### Added
 - the first version released
