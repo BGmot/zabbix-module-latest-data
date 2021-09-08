@@ -101,6 +101,69 @@ class CBGProfile extends CProfile {
 		return $result;
 	}
 
+	public static function clear() {
+		self::$insert = [];
+		self::$update = [];
+	}
+
+	/**
+	 * Return array of matched idx keys for current user.
+	 *
+	 * @param string $idx_pattern   Search pattern, SQL like wildcards can be used.
+	 * @param int    $idx2          Numerical index will be matched against idx2 index.
+	 *
+	 * @return array
+	 */
+	public static function findByIdxPattern($idx_pattern, $idx2) {
+		if (!CWebUser::$data) {
+			return null;
+		}
+
+		if (self::$profiles === null) {
+			self::init();
+		}
+
+		// Convert SQL _ and % wildcard characters to regexp.
+		$regexp = str_replace(['_', '%'], ['.', '.*'], preg_quote($idx_pattern, '/'));
+		$regexp = '/^'.$regexp.'/';
+
+		$results = [];
+		foreach (self::$profiles as $k => $v) {
+			if (preg_match($regexp, $k, $match) && array_key_exists($idx2, $v)) {
+				$results[] = $k;
+			}
+		}
+
+		if ($results) {
+			return $results;
+		}
+
+		// Aggressive caching, cache all items matched $idx key.
+		$query = DBselect(
+			'SELECT type, value_id, value_int, value_str, idx, idx2'.
+			' FROM profiles'.
+			' WHERE userid='.self::$userDetails['userid'].
+				' AND idx LIKE '.zbx_dbstr($idx_pattern)
+		);
+
+		while ($row = DBfetch($query)) {
+			$value_type = self::getFieldByType($row['type']);
+			$idx = $row['idx'];
+
+			if (!array_key_exists($idx, self::$profiles)) {
+				self::$profiles[$idx] = [];
+			}
+
+			self::$profiles[$idx][$row['idx2']] = $row[$value_type];
+
+			if ($row['idx2'] == $idx2) {
+				$results[] = $idx;
+			}
+		}
+
+		return $results;
+	}
+
 	/**
 	 * Return matched idx value for current user.
 	 *
@@ -153,6 +216,63 @@ class CBGProfile extends CProfile {
 	}
 
 	/**
+	 * Return matched idx value for current user.
+	 *
+	 * @param string    $idx           Search pattern.
+	 * @param mixed     $default_value Default value if no rows was found.
+	 * @param int|null  $idx2          Numerical index will be matched against idx2 index.
+	 *
+	 * @return mixed
+	 */
+	public static function get($idx, $default_value = null, $idx2 = 0) {
+		// no user data available, just return the default value
+		if (!CWebUser::$data || $idx2 === null) {
+			return $default_value;
+		}
+
+		if (self::$profiles === null) {
+			self::init();
+		}
+
+		if (array_key_exists($idx, self::$profiles)) {
+			// When there is cached data for $idx but $idx2 was not found we should return default value.
+			return array_key_exists($idx2, self::$profiles[$idx]) ? self::$profiles[$idx][$idx2] : $default_value;
+		}
+
+		self::$profiles[$idx] = [];
+		// Aggressive caching, cache all items matched $idx key.
+		$query = DBselect(
+			'SELECT type,value_id,value_int,value_str,idx2'.
+			' FROM profiles'.
+			' WHERE userid='.self::$userDetails['userid'].
+				' AND idx='.zbx_dbstr($idx)
+		);
+
+		while ($row = DBfetch($query)) {
+			$value_type = self::getFieldByType($row['type']);
+
+			self::$profiles[$idx][$row['idx2']] = $row[$value_type];
+		}
+
+		return array_key_exists($idx2, self::$profiles[$idx]) ? self::$profiles[$idx][$idx2] : $default_value;
+	}
+
+	/**
+	 * Returns the values stored under the given $idx as an array.
+	 *
+	 * @param string    $idx
+	 * @param mixed     $defaultValue
+	 *
+	 * @return mixed
+	 */
+	public static function getArray($idx, $defaultValue = null) {
+		if (self::get($idx, null, 0) === null) {
+			return $defaultValue;
+		}
+
+		return self::$profiles[$idx];
+	}
+	/**
 	 * Removes profile STR values from DB and profiles cache.
 	 *
 	 * @param string 		$idx		first identifier
@@ -174,6 +294,27 @@ class CBGProfile extends CProfile {
 	}
 
 	/**
+	 * Removes profile values from DB and profiles cache.
+	 *
+	 * @param string 		$idx	first identifier
+	 * @param int|array  	$idx2	second identifier, which can be list of identifiers as well
+	 */
+	public static function delete($idx, $idx2 = 0) {
+		if (self::$profiles === null) {
+			self::init();
+		}
+
+		$idx2 = (array) $idx2;
+		self::deleteValues($idx, $idx2);
+
+		if (array_key_exists($idx, self::$profiles)) {
+			foreach ($idx2 as $index) {
+				unset(self::$profiles[$idx][$index]);
+			}
+		}
+	}
+
+	/**
 	 * Deletes the given STR values from the DB.
 	 *
 	 * @param string 	$idx
@@ -182,6 +323,31 @@ class CBGProfile extends CProfile {
 	protected static function deleteValuesStr($idx, array $value_str) {
 		// remove from DB
 		DB::delete('profiles', ['idx' => $idx, 'idx2' => 0, 'userid' => self::$userDetails['userid'], 'value_str' => $value_str]);
+	}
+
+	/**
+	 * Removes all values stored under the given idx.
+	 *
+	 * @param string $idx
+	 */
+	public static function deleteIdx($idx) {
+		if (self::$profiles === null) {
+			self::init();
+		}
+
+		DB::delete('profiles', ['idx' => $idx, 'userid' => self::$userDetails['userid']]);
+		unset(self::$profiles[$idx]);
+	}
+
+	/**
+	 * Deletes the given values from the DB.
+	 *
+	 * @param string 	$idx
+	 * @param array 	$idx2
+	 */
+	protected static function deleteValues($idx, array $idx2) {
+		// remove from DB
+		DB::delete('profiles', ['idx' => $idx, 'idx2' => $idx2, 'userid' => self::$userDetails['userid']]);
 	}
 
 	/**
@@ -252,17 +418,33 @@ class CBGProfile extends CProfile {
 		}
 	}
 
-	private static function checkValueType($value, $type) {
-		switch ($type) {
-			case PROFILE_TYPE_ID:
-				return zbx_ctype_digit($value);
-			case PROFILE_TYPE_INT:
-				return zbx_is_int($value);
-			case PROFILE_TYPE_STR:
-				return mb_strlen($value) <= self::$stringProfileMaxLength;
-			default:
-				return true;
+	/**
+	 * Stores an array in the profiles.
+	 *
+	 * Each value is stored under the given idx and a sequentially generated idx2.
+	 *
+	 * @param string    $idx
+	 * @param array     $values
+	 * @param int       $type
+	 */
+	public static function updateArray($idx, array $values, $type) {
+		// save new values
+		$i = 0;
+		foreach ($values as $value) {
+			self::update($idx, $value, $type, $i);
+
+			$i++;
 		}
+
+		// delete remaining old values
+		$idx2 = [];
+		while (self::get($idx, null, $i) !== null) {
+			$idx2[] = $i;
+
+			$i++;
+		}
+
+		self::delete($idx, $idx2);
 	}
 
 	private static function insertDB($idx, $value, $type, $idx2) {
@@ -311,46 +493,17 @@ class CBGProfile extends CProfile {
 		return $field;
 	}
 
-	/**
-	 * Return matched idx value for current user.
-	 *
-	 * @param string    $idx           Search pattern.
-	 * @param mixed     $default_value Default value if no rows was found.
-	 * @param int|null  $idx2          Numerical index will be matched against idx2 index.
-	 *
-	 * @return mixed
-	 */
-	public static function get($idx, $default_value = null, $idx2 = 0) {
-		// no user data available, just return the default value
-		if (!CWebUser::$data || $idx2 === null) {
-			return $default_value;
+	private static function checkValueType($value, $type) {
+		switch ($type) {
+			case PROFILE_TYPE_ID:
+				return zbx_ctype_digit($value);
+			case PROFILE_TYPE_INT:
+				return zbx_is_int($value);
+			case PROFILE_TYPE_STR:
+				return mb_strlen($value) <= self::$stringProfileMaxLength;
+			default:
+				return true;
 		}
-
-		if (self::$profiles === null) {
-			self::init();
-		}
-
-		if (array_key_exists($idx, self::$profiles)) {
-			// When there is cached data for $idx but $idx2 was not found we should return default value.
-			return array_key_exists($idx2, self::$profiles[$idx]) ? self::$profiles[$idx][$idx2] : $default_value;
-		}
-
-		self::$profiles[$idx] = [];
-		// Aggressive caching, cache all items matched $idx key.
-		$query = DBselect(
-			'SELECT type,value_id,value_int,value_str,idx2'.
-			' FROM profiles'.
-			' WHERE userid='.self::$userDetails['userid'].
-				' AND idx='.zbx_dbstr($idx)
-		);
-
-		while ($row = DBfetch($query)) {
-			$value_type = self::getFieldByType($row['type']);
-
-			self::$profiles[$idx][$row['idx2']] = $row[$value_type];
-		}
-
-		return array_key_exists($idx2, self::$profiles[$idx]) ? self::$profiles[$idx][$idx2] : $default_value;
 	}
 }
 ?>
