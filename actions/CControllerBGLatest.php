@@ -223,7 +223,6 @@ abstract class CControllerBGLatest extends CController {
 	 */
 	protected function extendData(array &$prepared_data) {
 		$items = CMacrosResolverHelper::resolveItemKeys($prepared_data['items']);
-		$items = CMacrosResolverHelper::resolveItemNames($items);
 		$items = CMacrosResolverHelper::resolveItemDescriptions($items);
 		$items = CMacrosResolverHelper::resolveTimeUnitMacros($items, ['delay', 'history', 'trends']);
 

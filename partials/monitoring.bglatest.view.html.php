@@ -134,8 +134,9 @@ foreach ($data['items'] as $itemid => $item) {
 	$state_css = ($item['state'] == ITEM_STATE_NOTSUPPORTED) ? ZBX_STYLE_GREY : null;
 
 	$item_name = (new CDiv([
-		(new CSpan($item['name_expanded']))->addClass('label'),
-		($item['description'] !== '') ? makeDescriptionIcon($item['description']) : null
+		(new CLinkAction($item['name']))
+			->setMenuPopup(CMenuPopupHelper::getItem(['itemid' => $itemid])),
+		($item['description_expanded'] !== '') ? makeDescriptionIcon($item['description_expanded']) : null
 	]))->addClass('action-container');
 
 	// Row history data preparation.
