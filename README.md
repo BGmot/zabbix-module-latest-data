@@ -1,7 +1,7 @@
 # zabbix-module-latest-data
 Written according to Zabbix official documentation <https://www.zabbix.com/documentation/current/manual/modules>
 
-A Zabbix 6.0 module to group items under Monitoring -> Latest data per Tag as it used to be with Application grouping in previous versions of Zabbix. See discussion [ZBX-19413: Zabbix 5.4: Latest data is broken in usability after UI migrating app > tag](https://support.zabbix.com/browse/ZBX-19413)
+A module for Zabbix 6.0, 6.2 to group items under Monitoring -> Latest data per Tag as it used to be with Application grouping in previous versions of Zabbix. See discussion [ZBX-19413: Zabbix 5.4: Latest data is broken in usability after UI migrating app > tag](https://support.zabbix.com/browse/ZBX-19413)
 
 
 ![screenshot](screenshots/zabbix-module-latest-data.png)
