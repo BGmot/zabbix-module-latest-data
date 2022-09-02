@@ -26,6 +26,7 @@ use CPagerHelper;
 use CWebUser;
 use CHousekeepingHelper;
 use CControllerResponseData;
+use CControllerResponseFatal;
 use CRoleHelper;
 use Modules\BGmotLD\Classes\CBGProfile;
 
