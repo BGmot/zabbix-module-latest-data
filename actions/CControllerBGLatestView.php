@@ -39,6 +39,16 @@ class CControllerBGLatestView extends CControllerBGLatest {
 	protected function checkInput() {
 		$fields = [
 			'page' =>                                               'ge 1',
+			// filter fields
+			'groupids' =>				'array_db hosts_groups.groupid',
+			'hostids' =>				'array_db hosts.hostid',
+			'name' =>					'string',
+			'show_details' =>			'in 1,0',
+			'evaltype' =>				'in '.TAG_EVAL_TYPE_AND_OR.','.TAG_EVAL_TYPE_OR,
+			'tags' =>					'array',
+			'show_tags' =>				'in '.SHOW_TAGS_NONE.','.SHOW_TAGS_1.','.SHOW_TAGS_2.','.SHOW_TAGS_3,
+			'tag_name_format' =>		'in '.TAG_NAME_FULL.','.TAG_NAME_SHORTENED.','.TAG_NAME_NONE,
+			'tag_priority' =>			'string',
 			// filter inputs
 			'filter_groupids' =>                    'array_id',
 			'filter_hostids' =>                             'array_id',
@@ -70,6 +80,16 @@ class CControllerBGLatestView extends CControllerBGLatest {
 
 	protected function doAction() {
 		// filter
+		if (count($this->getInput('groupids', [])) > 0) {
+			// Since 6.0
+			CBGProfile::updateArray('web.latest.filter.groupids', $this->getInput('groupids', []),
+				PROFILE_TYPE_ID
+			);
+                }
+		if (count($this->getInput('hostids', [])) > 0) {
+			// Pre 6.0
+			CBGProfile::updateArray('web.latest.filter.hostids', $this->getInput('hostids', []), PROFILE_TYPE_ID);
+		}
 		if ($this->hasInput('filter_set')) {
 			CBGProfile::updateArray('web.latest.filter.groupids', $this->getInput('filter_groupids', []),
 				PROFILE_TYPE_ID
