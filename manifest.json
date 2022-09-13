@@ -2,7 +2,7 @@
   "manifest_version": 1.0,
   "id": "latest_data",
   "name": "Grouping in Latest Data",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "namespace": "BGmotLD",
   "author": "Evgeny Yurchenko",
   "url": "https://bgmot.com",
