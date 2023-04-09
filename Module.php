@@ -2,8 +2,6 @@
  
 namespace Modules\BGmotLD;
  
-use CController as CAction;
- 
-class Module extends \Core\CModule {
+class Module extends \Zabbix\Core\CModule {
 }
 ?>

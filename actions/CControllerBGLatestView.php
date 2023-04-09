@@ -33,7 +33,7 @@ use Modules\BGmotLD\Classes\CBGProfile;
 class CControllerBGLatestView extends CControllerBGLatest {
 
 	protected function init() {
-		$this->disableSIDValidation();
+		$this->disableCsrfValidation();
 	}
 
 	protected function checkInput() {
@@ -136,10 +136,15 @@ class CControllerBGLatestView extends CControllerBGLatest {
 		$filter_hostids = CBGProfile::getArray('web.latest.filter.hostids');
 		$filter_show_without_data = $filter_hostids ? CBGProfile::get('web.latest.filter.show_without_data', 1) : 1;
 
+		if ($this->hasInput('name')) {
+			$filter_name = $this->getInput('name');
+		} else {
+			$filter_name = '';
+		}
 		$filter = [
 			'groupids' => CBGProfile::getArray('web.latest.filter.groupids'),
 			'hostids' => $filter_hostids,
-			'select' => CBGProfile::get('web.latest.filter.select', ''),
+			'select' => $filter_name,
 			'show_without_data' => $filter_show_without_data,
 			'show_details' => CBGProfile::get('web.latest.filter.show_details', 0),
 			'evaltype' => CBGProfile::get('web.latest.filter.evaltype', TAG_EVAL_TYPE_AND_OR),

@@ -35,7 +35,7 @@ use Modules\BGmotLD\Classes\CBGProfile;
 class CControllerBGLatestViewRefresh extends CControllerBGLatest {
 
 	protected function init() {
-		$this->disableSIDValidation();
+		$this->disableCsrfValidation();
 	}
 
 	protected function checkInput() {

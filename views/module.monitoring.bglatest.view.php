@@ -33,7 +33,7 @@ $this->includeJsFile('monitoring.bglatest.view.js.php');
 $this->enableLayoutModes();
 $web_layout_mode = $this->getLayoutMode();
 
-$widget = (new CWidget())
+$widget = (new CHtmlPage())
 	->setTitle(_('Latest data'))
 	->setWebLayoutMode($web_layout_mode)
 	->setControls(
@@ -76,9 +76,6 @@ if ($web_layout_mode == ZBX_LAYOUT_NORMAL) {
 						'object_name' => 'hosts',
 						'data' => $data['multiselect_host_data'],
 						'popup' => [
-							'filter_preselect_fields' => [
-								'hostgroups' => 'filter_groupids_'
-							],
 							'parameters' => [
 								'srctbl' => 'hosts',
 								'srcfld1' => 'hostid',
