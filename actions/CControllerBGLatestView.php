@@ -94,7 +94,9 @@ class CControllerBGLatestView extends CControllerBGLatest {
 			CBGProfile::updateArray('web.latest.filter.groupids', $this->getInput('filter_groupids', []),
 				PROFILE_TYPE_ID
 			);
-			CBGProfile::updateArray('web.latest.filter.hostids', $this->getInput('filter_hostids', []), PROFILE_TYPE_ID);
+			if (!$this->hasInput('hostids')) {
+				CBGProfile::updateArray('web.latest.filter.hostids', $this->getInput('filter_hostids', []), PROFILE_TYPE_ID);
+			}
 			CBGProfile::update('web.latest.filter.select', trim($this->getInput('filter_select', '')), PROFILE_TYPE_STR);
 			CBGProfile::update('web.latest.filter.show_without_data', $this->getInput('filter_show_without_data', 0),
 				PROFILE_TYPE_INT
