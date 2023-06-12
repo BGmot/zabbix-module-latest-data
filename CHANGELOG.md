@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.1] - 2023-06-12
+### Changed
+- Fix reset button in filter.
+- Fixed bug to proper filter when a user comes to latest data from Monitoring -> Hosts menu.
+- Fixed bug to be able to open host edit pop up from Host context menu.
+
 ## [3.0.0] - 2023-04-09
 ### Changed
 - Updated to support Zabbix 6.4
