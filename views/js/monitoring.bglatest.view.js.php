@@ -296,4 +296,78 @@ use CTagFilterFieldHelper;
 		window.latest_page.liveFilter();
 		window.latest_page.liveData();
 	});
+
+	const view = {
+		timeout: null,
+		_popup_message_box: null,
+
+		editHost(hostid) {
+			const host_data = {hostid};
+			this.openHostPopup(host_data);
+		},
+
+		openHostPopup(host_data) {
+			this._removePopupMessage();
+
+			const original_url = location.href;
+			const overlay = PopUp('popup.host.edit', host_data, {
+				dialogueid: 'host_edit',
+				dialogue_class: 'modal-popup-large',
+				prevent_navigation: true
+			});
+
+			this.unscheduleRefresh();
+
+			overlay.$dialogue[0].addEventListener('dialogue.create', this.events.hostSuccess, {once: true});
+			overlay.$dialogue[0].addEventListener('dialogue.update', this.events.hostSuccess, {once: true});
+			overlay.$dialogue[0].addEventListener('dialogue.delete', this.events.hostSuccess, {once: true});
+			overlay.$dialogue[0].addEventListener('overlay.close', () => {
+				history.replaceState({}, '', original_url);
+			}, {once: true});
+		},
+
+		_removePopupMessage() {
+			if (this._popup_message_box !== null) {
+				this._popup_message_box.remove();
+				this._popup_message_box = null;
+			}
+		},
+
+		unscheduleRefresh() {
+			if (this.timeout !== null) {
+				clearTimeout(this.timeout);
+				this.timeout = null;
+			}
+
+			if (this.deferred) {
+				this.deferred.abort();
+			}
+		},
+
+		events: {
+			hostSuccess(e) {
+				const data = e.detail;
+
+				if ('success' in data) {
+					const title = data.success.title;
+					let messages = [];
+
+					if ('messages' in data.success) {
+						messages = data.success.messages;
+					}
+
+					view._addPopupMessage(makeMessageBox('good', messages, title));
+				}
+
+				uncheckTableRows('latest');
+			}
+		},
+
+		_addPopupMessage(message_box) {
+			this._removePopupMessage();
+
+			this._popup_message_box = message_box;
+			addMessage(this._popup_message_box);
+		}
+	};
 </script>
