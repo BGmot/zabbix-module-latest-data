@@ -11,8 +11,8 @@ IMPORTANT: pick module version according to Zabbix version:
 | Module version | Zabbix version |
 |:--------------:|:--------------:|
 |     v1.0.2     |     5.4        |
-|     v2.0.1     |     6.0        |
-|     v2.0.1     |     6.2        |
+|     v2.0.2     |     6.0        |
+|     v2.0.2     |     6.2        |
 |     v3.0.1     |     6.4        |
 
 1) Create a folder in your Zabbix server modules folder (by default /usr/share/zabbix/) and copy contents of this repository into that folder.
