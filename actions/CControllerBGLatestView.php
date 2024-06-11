@@ -138,8 +138,8 @@ class CControllerBGLatestView extends CControllerBGLatest {
 		$filter_hostids = CBGProfile::getArray('web.latest.filter.hostids');
 		$filter_show_without_data = $filter_hostids ? CBGProfile::get('web.latest.filter.show_without_data', 1) : 1;
 
-		if ($this->hasInput('name')) {
-			$filter_name = $this->getInput('name');
+		if ($this->hasInput('filter_select')) {
+			$filter_name = $this->getInput('filter_select');
 		} else {
 			$filter_name = '';
 		}
