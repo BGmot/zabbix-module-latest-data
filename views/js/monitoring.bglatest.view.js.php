@@ -45,7 +45,8 @@ use CTagFilterFieldHelper;
 				idx: idx,
 				value_int: value_int,
 				idx2: idx2,
-				value_str: value_str
+				value_str: value_str,
+				<?= \CCsrfTokenHelper::CSRF_TOKEN_NAME ?>: <?= json_encode(\CCsrfTokenHelper::get('bgprofile.update')) ?>
 			}
 		});
 	}
