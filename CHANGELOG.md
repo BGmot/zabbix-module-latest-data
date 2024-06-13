@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.2] - 2024-06-12
+### Changed
+- Fix unwrapping tags during page auto-update.
+- Fix filtering items by name.
+
 ## [3.0.1] - 2023-06-12
 ### Changed
 - Fix reset button in filter.
