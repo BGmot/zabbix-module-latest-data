@@ -14,6 +14,7 @@ IMPORTANT: pick module version according to Zabbix version:
 |     v2.0.2     |     6.0        |
 |     v2.0.2     |     6.2        |
 |     v3.0.2     |     6.4        |
+|     v4.0.0     |     7.0        |
 
 1) Create a folder in your Zabbix server modules folder (by default /usr/share/zabbix/) and copy contents of this repository into that folder.
 2) Go to Administration -> General -> Modules click Scan directory and enable the module. Go to Monitoring -> Latest data and check this out.
