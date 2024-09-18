@@ -113,6 +113,7 @@ $widget->addItem(new CPartial('monitoring.bglatest.view.html', array_intersect_k
 )));
 
 $widget->show();
+$this->addCssFile('modules/zabbix-module-latest-data/views/css/bglatest.css');
 
 // Initialize page refresh.
 (new CScriptTag('latest_page.start();'))
